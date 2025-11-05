@@ -1,0 +1,116 @@
+<div class="app-container">
+  <header class="header">
+    <div class="logo-container">
+      <img src="assets/logo/ActionLabs.png" alt="ActionLabs Logo" class="logo-icon" />
+    </div>
+    <div class="divider-line"></div>
+    <h1 class="title">BRL EXCHANGE RATE</h1>
+  </header>
+
+  <main class="main-content">
+    <div class="search-section">
+      <label for="currency-input" class="input-label">Enter the currency code</label>
+      <input
+        id="currency-input"
+        type="text"
+        [(ngModel)]="currencyCode"
+        (keyup.enter)="searchCurrency()"
+        placeholder="USD"
+        class="currency-input"
+        maxlength="3"
+        [disabled]="loading"
+      />
+      <button
+        class="exchange-button"
+        (click)="searchCurrency()"
+        [disabled]="loading || !currencyCode.trim()"
+      >
+        <span *ngIf="!loading">EXCHANGE RESULT</span>
+        <span *ngIf="loading">LOADING...</span>
+      </button>
+    </div>
+
+    <div *ngIf="error" class="error-message">
+      <p>{{ error }}</p>
+    </div>
+
+    <div *ngIf="currentRate && !loading" class="current-rate-section">
+      <div class="exchange-rate-now">
+        <div class="rate-header">
+          <div class="rate-left">
+            <div class="rate-label">Exchange rate now</div>
+            <div class="rate-date">{{ formatDateTime() }}</div>
+          </div>
+          <div class="rate-right">
+            <span class="currency-pair">{{ currentRate.toSymbol }}/{{ currentRate.fromSymbol }}</span>
+          </div>
+        </div>
+        <div class="rate-display">
+          <span class="rate-value">R$ {{ formatCurrency(currentRate.rate || currentRate.exchangeRate || 0) }}</span>
+        </div>
+      </div>
+
+      <div class="history-section-header">
+        <h2 class="history-title">LAST 30 DAYS</h2>
+        <div class="history-line"></div>
+        <button
+          class="history-toggle"
+          (click)="loadHistory()"
+          [disabled]="loading"
+        >
+          <span *ngIf="!showHistory">+</span>
+          <span *ngIf="showHistory">-</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="showHistory && historicalRates.length > 0" class="history-section">
+      <div class="history-cards">
+        <div *ngFor="let rate of historicalRates; let i = index" class="history-card">
+          <div class="card-date-header">
+            <span class="card-date">{{ formatDate(rate.date) }}</span>
+          </div>
+          <div class="card-content-wrapper">
+            <div class="card-left">
+              <div class="card-row">
+                <span class="card-label">OPEN:</span>
+                <span class="card-value">R$ {{ formatNumber(rate.open) }}</span>
+              </div>
+              <div class="card-row">
+                <span class="card-label">CLOSE:</span>
+                <span class="card-value">R$ {{ formatNumber(rate.close) }}</span>
+              </div>
+              <div class="card-row close-diff-row">
+                <span class="card-label">CLOSE DIFF (%):</span>
+                <span 
+                  class="card-value diff-value"
+                  [class.positive]="rate.closeDiff && rate.closeDiff > 0"
+                  [class.negative]="rate.closeDiff && rate.closeDiff < 0"
+                  [class.zero]="rate.closeDiff === 0"
+                >
+                  {{ formatCloseDiffPercent(rate.closeDiff || 0, rate.close) }}
+                  <span *ngIf="rate.closeDiff && rate.closeDiff > 0" class="arrow-icon">▲</span>
+                  <span *ngIf="rate.closeDiff && rate.closeDiff < 0" class="arrow-icon">▼</span>
+                </span>
+              </div>
+            </div>
+            <div class="card-right">
+              <div class="card-row">
+                <span class="card-label">HIGH:</span>
+                <span class="card-value">R$ {{ formatNumber(rate.high) }}</span>
+              </div>
+              <div class="card-row">
+                <span class="card-label">LOW:</span>
+                <span class="card-value">R$ {{ formatNumber(rate.low) }}</span>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+  <footer class="footer">
+    <span>Copyright 2022 - Action Labs</span>
+  </footer>
+</div>
